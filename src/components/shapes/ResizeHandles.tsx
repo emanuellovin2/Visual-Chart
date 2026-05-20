@@ -48,30 +48,39 @@ export function ResizeHandles({ node }: ResizeHandlesProps) {
       const startY = e.clientY
       const orig = { x: node.x, y: node.y, w: node.width, h: node.height }
       const MIN = 40
+      let rafId = 0
+      let lastMe: PointerEvent | null = null
 
-      const onMove = (me: PointerEvent) => {
+      const flush = () => {
+        rafId = 0
+        if (!lastMe) return
+        const me = lastMe
+        lastMe = null
         const dx = (me.clientX - startX) / zoom
         const dy = (me.clientY - startY) / zoom
-
         let { x, y, w, h } = orig
-
-        if (dir.includes('e')) w = Math.max(MIN, snapToGrid(orig.w + dx))
-        if (dir.includes('s')) h = Math.max(MIN, snapToGrid(orig.h + dy))
-        if (dir.includes('w')) {
-          const nw = Math.max(MIN, snapToGrid(orig.w - dx))
-          x = orig.x + orig.w - nw
-          w = nw
-        }
-        if (dir.includes('n')) {
-          const nh = Math.max(MIN, snapToGrid(orig.h - dy))
-          y = orig.y + orig.h - nh
-          h = nh
-        }
-
+        if (dir.includes('e')) w = Math.max(MIN, orig.w + dx)
+        if (dir.includes('s')) h = Math.max(MIN, orig.h + dy)
+        if (dir.includes('w')) { const nw = Math.max(MIN, orig.w - dx); x = orig.x + orig.w - nw; w = nw }
+        if (dir.includes('n')) { const nh = Math.max(MIN, orig.h - dy); y = orig.y + orig.h - nh; h = nh }
         updateNode(node.id, { x, y, width: w, height: h })
       }
 
+      const onMove = (me: PointerEvent) => {
+        lastMe = me
+        if (!rafId) rafId = requestAnimationFrame(flush)
+      }
+
       const onUp = () => {
+        if (rafId) cancelAnimationFrame(rafId)
+        // snap to grid on release only
+        const s = useCanvasStore.getState()
+        const n = s.nodes.find((n) => n.id === node.id)
+        if (n) updateNode(node.id, {
+          x: snapToGrid(n.x), y: snapToGrid(n.y),
+          width: Math.max(MIN, snapToGrid(n.width)),
+          height: Math.max(MIN, snapToGrid(n.height)),
+        })
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
       }

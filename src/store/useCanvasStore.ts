@@ -17,7 +17,7 @@ interface CanvasStore {
   updateNode: (id: string, updates: Partial<CanvasNode>) => void
   removeNodes: (ids: string[]) => void
   duplicateNodes: (ids: string[], offset?: number) => string[]
-  pasteNodes: (sourceNodes: CanvasNode[], offset?: number) => string[]
+  pasteNodes: (sourceNodes: CanvasNode[], pasteAt?: { x: number; y: number }) => string[]
 
   setEdges: (edges: CanvasEdge[]) => void
   addEdge: (edge: CanvasEdge) => void
@@ -100,18 +100,28 @@ export const useCanvasStore = create<CanvasStore>()(
         return newIds
       },
 
-      pasteNodes: (sourceNodes: CanvasNode[], offset = 20) => {
+      pasteNodes: (sourceNodes: CanvasNode[], pasteAt?: { x: number; y: number }) => {
         const newIds: string[] = []
         set((state) => {
           const maxZ = Math.max(0, ...state.nodes.map((n) => n.zIndex))
+          let dx = 20
+          let dy = 20
+          if (pasteAt) {
+            const minX = Math.min(...sourceNodes.map((n) => n.x))
+            const minY = Math.min(...sourceNodes.map((n) => n.y))
+            const maxX = Math.max(...sourceNodes.map((n) => n.x + n.width))
+            const maxY = Math.max(...sourceNodes.map((n) => n.y + n.height))
+            dx = pasteAt.x - (minX + maxX) / 2
+            dy = pasteAt.y - (minY + maxY) / 2
+          }
           const copies = sourceNodes.map((n, i) => {
             const newId = crypto.randomUUID()
             newIds.push(newId)
             return {
               ...JSON.parse(JSON.stringify(n)) as CanvasNode,
               id: newId,
-              x: n.x + offset,
-              y: n.y + offset,
+              x: Math.round((n.x + dx) / 8) * 8,
+              y: Math.round((n.y + dy) / 8) * 8,
               zIndex: maxZ + i + 1,
             }
           })

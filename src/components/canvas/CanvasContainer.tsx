@@ -65,6 +65,7 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
   const [marquee, setMarquee] = useState<Marquee | null>(null)
   const marqueeStart = useRef<{ x: number; y: number } | null>(null)
   const cursorThrottleRef = useRef<number>(0)
+  const canvasCursorRef = useRef<{ x: number; y: number } | null>(null)
 
   const setZoom = useCanvasStore((s) => s.setZoom)
   const setPan = useCanvasStore((s) => s.setPan)
@@ -167,7 +168,7 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
         const editorClipboard = useEditorStore.getState().clipboard
         if (editorClipboard.length > 0) {
           e.preventDefault()
-          useCanvasStore.getState().pasteNodes(editorClipboard)
+          useCanvasStore.getState().pasteNodes(editorClipboard, canvasCursorRef.current ?? undefined)
         }
       }
 
@@ -298,14 +299,15 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
           setMarquee({ sx, sy, ex, ey })
         }
       }
-      // Broadcast cursor position at ~20fps
-      const now = Date.now()
-      if (now - cursorThrottleRef.current > 50) {
-        cursorThrottleRef.current = now
-        const rect = containerRef.current?.getBoundingClientRect()
-        if (rect) {
-          const s = useCanvasStore.getState()
-          const pos = screenToCanvas(e.clientX - rect.left, e.clientY - rect.top, s.panX, s.panY, s.zoom)
+      // Track canvas cursor position + broadcast at ~20fps
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (rect) {
+        const s = useCanvasStore.getState()
+        const pos = screenToCanvas(e.clientX - rect.left, e.clientY - rect.top, s.panX, s.panY, s.zoom)
+        canvasCursorRef.current = pos
+        const now = Date.now()
+        if (now - cursorThrottleRef.current > 50) {
+          cursorThrottleRef.current = now
           useCollaborationStore.getState()._broadcastCursor?.(pos.x, pos.y)
         }
       }
@@ -386,7 +388,7 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
       id="canvas-container"
       ref={containerRef}
       className="bg-background relative h-full w-full overflow-hidden select-none"
-      style={{ cursor }}
+      style={{ cursor, touchAction: 'none', overscrollBehavior: 'none' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

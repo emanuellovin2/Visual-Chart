@@ -107,8 +107,14 @@ function DraggableShapeInner({ node }: DraggableShapeProps) {
         return { id, x: n?.x ?? 0, y: n?.y ?? 0 }
       })
 
-      const onMove = (me: PointerEvent) => {
-        // Read zoom from store at event time — avoids stale closure
+      let rafId = 0
+      let lastMe: PointerEvent | null = null
+
+      const flush = () => {
+        rafId = 0
+        if (!lastMe) return
+        const me = lastMe
+        lastMe = null
         const zoom = useCanvasStore.getState().zoom
         const dx = (me.clientX - startX) / zoom
         const dy = (me.clientY - startY) / zoom
@@ -119,7 +125,13 @@ function DraggableShapeInner({ node }: DraggableShapeProps) {
         })
       }
 
+      const onMove = (me: PointerEvent) => {
+        lastMe = me
+        if (!rafId) rafId = requestAnimationFrame(flush)
+      }
+
       const onUp = () => {
+        if (rafId) { cancelAnimationFrame(rafId); flush() }
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
       }

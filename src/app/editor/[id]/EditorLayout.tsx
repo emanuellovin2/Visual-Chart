@@ -8,6 +8,7 @@ import { PropertiesPanel } from '@/components/panels/PropertiesPanel'
 import { CanvasNodes } from '@/components/shapes'
 import { ConnectionLayer } from '@/components/connections'
 import { CollaboratorCursors } from '@/components/collaboration'
+import { DistanceIndicators } from '@/components/canvas/DistanceIndicators'
 import { useCanvasStore } from '@/store/useCanvasStore'
 import { useAutosave } from '@/hooks/useAutosave'
 import { useRealtimeCollaboration } from '@/hooks/useRealtimeCollaboration'
@@ -55,6 +56,7 @@ export function EditorLayout({
             <ConnectionLayer />
             <CanvasNodes />
           </CanvasContainer>
+          <DistanceIndicators />
           <CollaboratorCursors />
         </main>
       </div>
