@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { useStore } from 'zustand'
 import {
   ChevronLeft, Share2, Download, Minus, Spline, CornerDownRight,
   Undo2, Redo2, Check, Loader2, CloudOff,
@@ -61,10 +60,16 @@ export function EditorToolbar({ projectId, projectTitle, initialIsPublic }: Edit
   const activeConnectionType = useEditorStore((s) => s.activeConnectionType)
   const setActiveConnectionType = useEditorStore((s) => s.setActiveConnectionType)
 
-  const undo = useStore(useCanvasStore.temporal, (s) => s.undo)
-  const redo = useStore(useCanvasStore.temporal, (s) => s.redo)
-  const canUndo = useStore(useCanvasStore.temporal, (s) => s.pastStates.length > 0)
-  const canRedo = useStore(useCanvasStore.temporal, (s) => s.futureStates.length > 0)
+  const [canUndo, setCanUndo] = useState(() => useCanvasStore.temporal.getState().pastStates.length > 0)
+  const [canRedo, setCanRedo] = useState(() => useCanvasStore.temporal.getState().futureStates.length > 0)
+  useEffect(() => {
+    return useCanvasStore.temporal.subscribe((s) => {
+      setCanUndo(s.pastStates.length > 0)
+      setCanRedo(s.futureStates.length > 0)
+    })
+  }, [])
+  const undo = useCallback(() => useCanvasStore.temporal.getState().undo(), [])
+  const redo = useCallback(() => useCanvasStore.temporal.getState().redo(), [])
   const saveStatus = useEditorStore((s) => s.saveStatus)
 
   return (

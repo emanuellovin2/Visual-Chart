@@ -13,6 +13,7 @@ interface CanvasStore {
 
   setNodes: (nodes: CanvasNode[]) => void
   addNode: (node: CanvasNode) => void
+  addNodeAndSelect: (node: CanvasNode) => void
   updateNode: (id: string, updates: Partial<CanvasNode>) => void
   removeNodes: (ids: string[]) => void
   duplicateNodes: (ids: string[], offset?: number) => string[]
@@ -53,6 +54,12 @@ export const useCanvasStore = create<CanvasStore>()(
       addNode: (node) =>
         set((state) => {
           state.nodes.push(node)
+        }),
+
+      addNodeAndSelect: (node) =>
+        set((state) => {
+          state.nodes.push(node)
+          state.selectedIds = [node.id]
         }),
 
       updateNode: (id, updates) =>

@@ -69,7 +69,7 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
   const setZoom = useCanvasStore((s) => s.setZoom)
   const setPan = useCanvasStore((s) => s.setPan)
   const clearSelection = useCanvasStore((s) => s.clearSelection)
-  const addNode = useCanvasStore((s) => s.addNode)
+  const addNodeAndSelect = useCanvasStore((s) => s.addNodeAndSelect)
 
   const activeTool = useEditorStore((s) => s.activeTool)
   const setActiveTool = useEditorStore((s) => s.setActiveTool)
@@ -264,9 +264,8 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
           style,
           zIndex: useCanvasStore.getState().nodes.length + 1,
         }
-        addNode(node)
+        addNodeAndSelect(node)
         setActiveTool('select')
-        useCanvasStore.getState().setSelectedIds([node.id])
         return
       }
 
@@ -279,7 +278,7 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
         setSelectedEdgeId(null)
       }
     },
-    [spaceDown, activeTool, addNode, setActiveTool, clearSelection, setSelectedEdgeId]
+    [spaceDown, activeTool, addNodeAndSelect, setActiveTool, clearSelection, setSelectedEdgeId]
   )
 
   const handlePointerMove = useCallback(
@@ -362,8 +361,7 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
         style,
         zIndex: useCanvasStore.getState().nodes.length + 1,
       }
-      addNode(node)
-      useCanvasStore.getState().setSelectedIds([node.id])
+      addNodeAndSelect(node)
 
       startTransition(async () => {
         const fd = new FormData()
@@ -373,7 +371,7 @@ export function CanvasContainer({ children }: CanvasContainerProps) {
         useCanvasStore.getState().updateNode(node.id, { imageUrl: url })
       })
     },
-    [addNode]
+    [addNodeAndSelect]
   )
 
   const isShapeTool = SHAPE_TYPES.has(activeTool as ShapeType)
