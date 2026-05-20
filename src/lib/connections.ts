@@ -67,14 +67,31 @@ export function computePathD(
     }
 
     case 'elbow': {
-      const isH = sp === 'e' || sp === 'w'
-      if (isH) {
-        const mx = (p1.x + p2.x) / 2
-        return `M ${p1.x} ${p1.y} L ${mx} ${p1.y} L ${mx} ${p2.y} L ${p2.x} ${p2.y}`
-      } else {
-        const my = (p1.y + p2.y) / 2
-        return `M ${p1.x} ${p1.y} L ${p1.x} ${my} L ${p2.x} ${my} L ${p2.x} ${p2.y}`
+      const STUB = 28
+      // Exit point: leave source perpendicularly
+      const sx = p1.x + (sp === 'e' ? STUB : sp === 'w' ? -STUB : 0)
+      const sy = p1.y + (sp === 's' ? STUB : sp === 'n' ? -STUB : 0)
+      // Approach point: arrive at target perpendicularly from outside
+      const tx = p2.x + (tp === 'e' ? STUB : tp === 'w' ? -STUB : 0)
+      const ty = p2.y + (tp === 's' ? STUB : tp === 'n' ? -STUB : 0)
+
+      const isHSrc = sp === 'e' || sp === 'w'
+      const isHTgt = tp === 'e' || tp === 'w'
+
+      if (isHSrc && isHTgt) {
+        const mx = (sx + tx) / 2
+        return `M ${p1.x} ${p1.y} L ${sx} ${sy} L ${mx} ${sy} L ${mx} ${ty} L ${tx} ${ty} L ${p2.x} ${p2.y}`
       }
+      if (!isHSrc && !isHTgt) {
+        const my = (sy + ty) / 2
+        return `M ${p1.x} ${p1.y} L ${sx} ${sy} L ${sx} ${my} L ${tx} ${my} L ${tx} ${ty} L ${p2.x} ${p2.y}`
+      }
+      if (isHSrc) {
+        // Source horizontal → target vertical: one corner at (tx, sy)
+        return `M ${p1.x} ${p1.y} L ${sx} ${sy} L ${tx} ${sy} L ${tx} ${ty} L ${p2.x} ${p2.y}`
+      }
+      // Source vertical → target horizontal: one corner at (sx, ty)
+      return `M ${p1.x} ${p1.y} L ${sx} ${sy} L ${sx} ${ty} L ${tx} ${ty} L ${p2.x} ${p2.y}`
     }
   }
 }

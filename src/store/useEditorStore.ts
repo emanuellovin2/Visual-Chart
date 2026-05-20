@@ -42,7 +42,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
   activeTool: 'select',
   setActiveTool: (tool) => set({ activeTool: tool }),
 
-  activeConnectionType: 'curved',
+  activeConnectionType: 'elbow',
   setActiveConnectionType: (type) => set({ activeConnectionType: type }),
 
   hoveredNodeId: null,

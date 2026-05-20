@@ -10,6 +10,7 @@ import { useCanvasStore } from '@/store/useCanvasStore'
 import { useEditorStore } from '@/store/useEditorStore'
 import dynamic from 'next/dynamic'
 import { CollaboratorAvatars } from '@/components/collaboration'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const ExportDialog = dynamic(() => import('./ExportDialog').then((m) => m.ExportDialog), { ssr: false })
 const ShareDialog = dynamic(() => import('./ShareDialog').then((m) => m.ShareDialog), { ssr: false })
@@ -142,6 +143,8 @@ export function EditorToolbar({ projectId, projectTitle, initialIsPublic }: Edit
         </span>
         <div className="bg-border h-5 w-px" />
         <CollaboratorAvatars />
+        <ThemeToggle />
+        <div className="bg-border h-5 w-px" />
 
         <button
           onClick={() => setShareOpen(true)}
