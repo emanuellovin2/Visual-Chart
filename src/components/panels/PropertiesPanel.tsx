@@ -34,21 +34,9 @@ export function PropertiesPanel() {
 
   if (selectedNode) return <NodePanel node={selectedNode} />
   if (selectedEdge) return <EdgePanel edge={selectedEdge} />
-  return <EmptyPanel />
+  return null
 }
 
-function EmptyPanel() {
-  return (
-    <aside className="bg-card border-border flex h-full w-60 flex-col border-l">
-      <PanelHeader label="Properties" />
-      <div className="flex flex-1 items-center justify-center p-4">
-        <p className="text-center text-xs text-muted-foreground">
-          Select an element to edit its properties
-        </p>
-      </div>
-    </aside>
-  )
-}
 
 function EdgePanel({ edge }: { edge: CanvasEdge }) {
   const removeEdges = useCanvasStore((s) => s.removeEdges)
@@ -64,7 +52,7 @@ function EdgePanel({ edge }: { edge: CanvasEdge }) {
   }
 
   return (
-    <aside className="bg-card border-border flex h-full w-60 flex-col border-l overflow-y-auto">
+    <aside className="bg-card border-border flex h-full w-60 flex-col border-r overflow-y-auto">
       <PanelHeader label="Connection" />
       <div className="flex-1 space-y-4 p-4">
         <Section label="Type">
@@ -145,7 +133,7 @@ function NodePanel({ node }: { node: CanvasNode }) {
   }
 
   return (
-    <aside className="bg-card border-border flex h-full w-60 flex-col border-l overflow-y-auto">
+    <aside className="bg-card border-border flex h-full w-60 flex-col border-r overflow-y-auto">
       <PanelHeader label={TYPE_LABELS[node.type]} />
 
       <div className="flex-1 space-y-4 p-4">

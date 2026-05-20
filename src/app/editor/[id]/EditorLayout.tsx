@@ -49,6 +49,7 @@ export function EditorLayout({
       <EditorToolbar projectId={projectId} projectTitle={projectTitle} initialIsPublic={initialIsPublic} />
       <div className="flex flex-1 overflow-hidden">
         <EditorSidebar />
+        <PropertiesPanel />
         <main className="relative flex-1 overflow-hidden">
           <CanvasContainer>
             <ConnectionLayer />
@@ -56,7 +57,6 @@ export function EditorLayout({
           </CanvasContainer>
           <CollaboratorCursors />
         </main>
-        <PropertiesPanel />
       </div>
     </div>
   )
