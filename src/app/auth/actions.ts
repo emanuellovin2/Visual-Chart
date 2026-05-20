@@ -43,23 +43,6 @@ export async function register(formData: FormData) {
   return { success: 'Check your email to confirm your account.' }
 }
 
-export async function loginWithGoogle() {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      queryParams: { access_type: 'offline', prompt: 'consent' },
-    },
-  })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  redirect(data.url)
-}
 
 export async function logout() {
   const supabase = await createClient()

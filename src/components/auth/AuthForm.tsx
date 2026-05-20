@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { login, register, loginWithGoogle } from '@/app/auth/actions'
+import { login, register } from '@/app/auth/actions'
+import { createClient } from '@/lib/supabase/client'
 
 interface AuthFormProps {
   mode: 'login' | 'register'
@@ -34,8 +35,15 @@ export function AuthForm({ mode }: AuthFormProps) {
   async function handleGoogle() {
     setError(null)
     startTransition(async () => {
-      const result = await loginWithGoogle()
-      if (result?.error) setError(result.error)
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: { access_type: 'offline', prompt: 'consent' },
+        },
+      })
+      if (error) setError(error.message)
     })
   }
 
