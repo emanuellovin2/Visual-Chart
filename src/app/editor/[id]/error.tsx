@@ -25,9 +25,12 @@ export default function EditorError({
         <Button variant="outline" size="sm" onClick={unstable_retry}>
           Try again
         </Button>
-        <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700">
-          <Link href="/dashboard">Back to dashboard</Link>
-        </Button>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center justify-center rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-violet-700"
+        >
+          Back to dashboard
+        </Link>
       </div>
     </div>
   )
