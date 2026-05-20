@@ -23,8 +23,6 @@ export function useRealtimeCollaboration({
 }: UseRealtimeCollaborationOptions) {
   const channelRef = useRef<RealtimeChannel | null>(null)
   const isApplyingRemoteRef = useRef(false)
-  const { setConnected, upsertCollaborator, removeCollaborator, updateCursor, clearCollaborators } =
-    useCollaborationStore()
 
   const myColor = getCollabColor(userId)
 
@@ -60,6 +58,7 @@ export function useRealtimeCollaboration({
 
   useEffect(() => {
     const sb = createClient()
+    const collab = useCollaborationStore.getState()
 
     const channel = sb.channel(`project:${projectId}`, {
       config: { presence: { key: userId } },
@@ -74,7 +73,7 @@ export function useRealtimeCollaboration({
       Object.entries(state).forEach(([presenceKey, presences]) => {
         const p = presences[0]
         if (presenceKey !== userId && p) {
-          upsertCollaborator({
+          collab.upsertCollaborator({
             userId: presenceKey,
             userName: p.userName,
             avatarUrl: p.avatarUrl,
@@ -91,7 +90,7 @@ export function useRealtimeCollaboration({
       if (key === userId) return
       const p = newPresences[0] as unknown as CollaboratorPresence | undefined
       if (!p) return
-      upsertCollaborator({
+      collab.upsertCollaborator({
         userId: key,
         userName: p.userName,
         avatarUrl: p.avatarUrl,
@@ -103,7 +102,7 @@ export function useRealtimeCollaboration({
     })
 
     channel.on('presence', { event: 'leave' }, ({ key }) => {
-      if (key !== userId) removeCollaborator(key)
+      if (key !== userId) collab.removeCollaborator(key)
     })
 
     // ── Canvas events ──────────────────────────────────────────────────────────
@@ -143,14 +142,14 @@ export function useRealtimeCollaboration({
     channel.on('broadcast', { event: 'cursor' }, ({ payload }) => {
       if ((payload as CollabEvent).senderId === userId) return
       const p = payload as { senderId: string; x: number; y: number }
-      updateCursor(p.senderId, p.x, p.y)
+      collab.updateCursor(p.senderId, p.x, p.y)
     })
 
     // ── Subscribe & track presence ─────────────────────────────────────────────
 
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        setConnected(true)
+        collab.setConnected(true)
         await channel.track({
           userName,
           avatarUrl,
@@ -165,8 +164,8 @@ export function useRealtimeCollaboration({
     return () => {
       channel.unsubscribe()
       sb.removeChannel(channel)
-      setConnected(false)
-      clearCollaborators()
+      useCollaborationStore.getState().setConnected(false)
+      useCollaborationStore.getState().clearCollaborators()
       channelRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

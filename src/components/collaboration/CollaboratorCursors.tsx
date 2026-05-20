@@ -1,16 +1,16 @@
 'use client'
 
-import { useShallow } from 'zustand/react/shallow'
+import { useMemo } from 'react'
 import { useCollaborationStore } from '@/store/useCollaborationStore'
 import { useCanvasStore } from '@/store/useCanvasStore'
 
 export function CollaboratorCursors() {
-  const collaborators = useCollaborationStore(
-    useShallow((s) => Object.values(s.collaborators))
-  )
+  const collaboratorsMap = useCollaborationStore((s) => s.collaborators)
   const zoom = useCanvasStore((s) => s.zoom)
   const panX = useCanvasStore((s) => s.panX)
   const panY = useCanvasStore((s) => s.panY)
+
+  const collaborators = useMemo(() => Object.values(collaboratorsMap), [collaboratorsMap])
 
   if (collaborators.length === 0) return null
 

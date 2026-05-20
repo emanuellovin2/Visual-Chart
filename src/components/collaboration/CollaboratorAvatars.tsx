@@ -1,11 +1,13 @@
 'use client'
 
+import { useMemo } from 'react'
 import Image from 'next/image'
 import { useCollaborationStore } from '@/store/useCollaborationStore'
 
 export function CollaboratorAvatars() {
-  const { collaborators, isConnected } = useCollaborationStore()
-  const list = Object.values(collaborators)
+  const collaborators = useCollaborationStore((s) => s.collaborators)
+  const isConnected = useCollaborationStore((s) => s.isConnected)
+  const list = useMemo(() => Object.values(collaborators), [collaborators])
 
   if (!isConnected && list.length === 0) return null
 

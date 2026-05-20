@@ -27,6 +27,7 @@ export function PropertiesPanel() {
   const setSelectedEdgeId = useEditorStore((s) => s.setSelectedEdgeId)
 
   const removeNodes = useCanvasStore((s) => s.removeNodes)
+  const imgInputRef = useRef<HTMLInputElement>(null)
   const selectedNode = nodes.find((n) => n.id === selectedIds[0])
   const selectedEdge = edges.find((e) => e.id === selectedEdgeId)
 
@@ -111,8 +112,6 @@ export function PropertiesPanel() {
       </aside>
     )
   }
-
-  const imgInputRef = useRef<HTMLInputElement>(null)
 
   const update = (patch: Partial<typeof selectedNode>) =>
     updateNode(selectedNode.id, patch)
