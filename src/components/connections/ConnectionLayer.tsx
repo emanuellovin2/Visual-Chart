@@ -5,7 +5,6 @@ import { useCanvasStore } from '@/store/useCanvasStore'
 import { useEditorStore } from '@/store/useEditorStore'
 import {
   getPortPosition,
-  getBestPorts,
   computePathD,
   getPathMidpoint,
 } from '@/lib/connections'
@@ -42,7 +41,8 @@ interface EdgePathProps {
 }
 
 const EdgePath = memo(function EdgePath({ edge, sourceNode, targetNode, selected, onClick }: EdgePathProps) {
-  const { sp, tp } = getBestPorts(sourceNode, targetNode)
+  const sp = edge.sourcePort
+  const tp = edge.targetPort
   const p1 = getPortPosition(sourceNode, sp)
   const p2 = getPortPosition(targetNode, tp)
   const d = computePathD(edge.type, p1, sp, p2, tp)
